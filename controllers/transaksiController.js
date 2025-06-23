@@ -1,0 +1,187 @@
+const Transaksi = require("../models/transaksi");
+const TableOfAkun = require("../models/tableOfAkun");
+const Rekening = require("../models/rekening");
+const User = require("../models/user");
+const { Op } = require("sequelize");
+
+// CREATE Transaksi
+exports.createTransaksi = async (req, res) => {
+  try {
+    // cari saldo terakhir untuk akun ini
+    const lastTransaksi = await Transaksi.findOne({
+      where: { id_rekening: req.body.id_rekening },
+      order: [
+        ["tanggal", "DESC"],
+        ["createdAt", "DESC"],
+      ],
+    });
+
+    const saldoTerakhir = lastTransaksi ? parseFloat(lastTransaksi.saldo) : 0;
+    const debitBaru = parseFloat(req.body.debit) || 0;
+    const kreditBaru = parseFloat(req.body.kredit) || 0;
+
+    const saldoBaru = saldoTerakhir + debitBaru - kreditBaru;
+
+    // buat transaksi baru
+    const transaksi = await Transaksi.create({
+      tanggal: req.body.tanggal,
+      id_table_of_akun: req.body.id_table_of_akun,
+      keterangan: req.body.keterangan,
+      debit: debitBaru,
+      kredit: kreditBaru,
+      saldo: saldoBaru, // dihitung otomatis
+      id_rekening: req.body.id_rekening || null,
+      mata_uang: req.body.mata_uang,
+      created_by: req.body.created_by,
+    });
+
+    res.status(201).json({
+      message: "Berhasil menambahkan transaksi",
+      data: transaksi,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// SHOW ALL Transaksi (dengan filter optional by id_rekening)
+exports.showAllTransaksi = async (req, res) => {
+  try {
+    const { id_rekening, start_tanggal, end_tanggal } = req.query; // ambil dari query param
+
+    // Siapkan where condition
+    const whereClause = {};
+
+    if (id_rekening) {
+      whereClause.id_rekening = id_rekening;
+    }
+
+    if (start_tanggal && end_tanggal) {
+      whereClause.tanggal = {
+        [Op.between]: [start_tanggal, end_tanggal],
+      };
+    } else if (start_tanggal) {
+      whereClause.tanggal = {
+        [Op.gte]: start_tanggal,
+      };
+    } else if (end_tanggal) {
+      whereClause.tanggal = {
+        [Op.lte]: end_tanggal,
+      };
+    }
+
+    const transaksi = await Transaksi.findAll({
+      where: whereClause,
+      include: [{ model: TableOfAkun }, { model: Rekening }, { model: User, attributes: ["id", "nama", "username"] }],
+      order: [
+        ["tanggal", "DESC"],
+        ["createdAt", "DESC"],
+      ],
+    });
+
+    res.json(transaksi);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// SHOW DETAIL Transaksi
+exports.detailTransaksi = async (req, res) => {
+  try {
+    const transaksi = await Transaksi.findByPk(req.params.id, {
+      include: [{ model: TableOfAkun }, { model: Rekening }, { model: User, attributes: ["id", "name", "username"] }],
+    });
+    if (!transaksi) return res.status(404).json({ message: "Transaksi tidak ditemukan" });
+    res.json(transaksi);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// UPDATE Transaksi
+exports.updateTransaksi = async (req, res) => {
+  try {
+    const transaksi = await Transaksi.findByPk(req.params.id);
+    if (!transaksi) return res.status(404).json({ message: "Transaksi tidak ditemukan" });
+
+    const rekeningIdLama = transaksi.id_rekening; // ambil rekening lama
+
+    // Update data transaksi
+    await transaksi.update({
+      tanggal: req.body.tanggal,
+      id_table_of_akun: req.body.id_table_of_akun,
+      keterangan: req.body.keterangan,
+      debit: parseFloat(req.body.debit) || 0,
+      kredit: parseFloat(req.body.kredit) || 0,
+      id_rekening: req.body.id_rekening,
+      mata_uang: req.body.mata_uang,
+      created_by: req.body.created_by,
+    });
+
+    // Ambil semua transaksi untuk rekening yg baru (bisa rekening baru atau rekening lama)
+    const semuaTransaksi = await Transaksi.findAll({
+      where: { id_rekening: req.body.id_rekening || rekeningIdLama },
+      order: [
+        ["tanggal", "ASC"],
+        ["createdAt", "ASC"],
+      ],
+    });
+
+    // Rehitung saldo
+    let saldo = 0;
+    for (const trx of semuaTransaksi) {
+      const debit = parseFloat(trx.debit) || 0;
+      const kredit = parseFloat(trx.kredit) || 0;
+
+      saldo = saldo + debit - kredit;
+
+      // Update saldo
+      await trx.update({ saldo: saldo });
+    }
+
+    res.status(200).json({
+      message: "Berhasil mengubah transaksi & update saldo",
+      data: transaksi,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// DELETE Transaksi
+exports.deleteTransaksi = async (req, res) => {
+  try {
+    const transaksi = await Transaksi.findByPk(req.params.id);
+    if (!transaksi) return res.status(404).json({ message: "Transaksi tidak ditemukan" });
+
+    const idRekening = transaksi.id_rekening;
+    const tanggalTransaksi = transaksi.tanggal;
+
+    // Hapus transaksi
+    await transaksi.destroy();
+
+    // Ambil semua transaksi setelah transaksi yg dihapus, urut ASC
+    const semuaTransaksi = await Transaksi.findAll({
+      where: { id_rekening: idRekening },
+      order: [
+        ["tanggal", "ASC"],
+        ["createdAt", "ASC"],
+      ],
+    });
+
+    // Hitung ulang saldo
+    let saldo = 0;
+    for (const trx of semuaTransaksi) {
+      const debit = parseFloat(trx.debit) || 0;
+      const kredit = parseFloat(trx.kredit) || 0;
+
+      saldo = saldo + debit - kredit;
+
+      await trx.update({ saldo: saldo });
+    }
+
+    res.status(200).json({ message: "Berhasil menghapus transaksi & update saldo" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

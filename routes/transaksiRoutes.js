@@ -1,0 +1,159 @@
+const express = require("express");
+const router = express.Router();
+const { createTransaksiValidator, updateTransaksiValidator } = require("../validators/transaksiValidator");
+const handleValidation = require("../middlewares/validationResultHandler");
+const transaksiController = require("../controllers/transaksiController");
+
+/**
+ * @swagger
+ * tags:
+ *   name: Transaksi
+ *   description: Manajemen Transaksi
+ */
+
+/**
+ * @swagger
+ * /transaksi:
+ *   post:
+ *     summary: Buat Transaksi baru
+ *     tags: [Transaksi]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               tanggal:
+ *                 type: string
+ *               id_table_of_akun:
+ *                 type: integer
+ *               keterangan:
+ *                 type: string
+ *               debit:
+ *                 type: number
+ *               kredit:
+ *                 type: number
+ *               id_rekening:
+ *                 type: integer
+ *               mata_uang:
+ *                 type: string
+ *               created_by:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Transaksi berhasil dibuat
+ */
+router.post("/", createTransaksiValidator, handleValidation, transaksiController.createTransaksi);
+
+/**
+ * @swagger
+ * /transaksi/{id}:
+ *   put:
+ *     summary: Update data Transaksi
+ *     tags: [Transaksi]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID Transaksi
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               tanggal:
+ *                 type: string
+ *               id_table_of_akun:
+ *                 type: integer
+ *               keterangan:
+ *                 type: string
+ *               debit:
+ *                 type: number
+ *               kredit:
+ *                 type: number
+ *               id_rekening:
+ *                 type: integer
+ *               mata_uang:
+ *                 type: string
+ *               created_by:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Transaksi berhasil diupdate
+ */
+router.put("/:id", updateTransaksiValidator, handleValidation, transaksiController.updateTransaksi);
+
+/**
+ * @swagger
+ * /transaksi:
+ *   get:
+ *     summary: Ambil semua Transaksi (bisa filter per rekening dan range tanggal)
+ *     tags: [Transaksi]
+ *     parameters:
+ *       - in: query
+ *         name: id_rekening
+ *         schema:
+ *           type: integer
+ *         description: Filter transaksi berdasarkan ID Rekening
+ *       - in: query
+ *         name: start_tanggal
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter transaksi dari tanggal (YYYY-MM-DD)
+ *       - in: query
+ *         name: end_tanggal
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter transaksi sampai tanggal (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Daftar Transaksi
+ */
+router.get("/", transaksiController.showAllTransaksi);
+
+/**
+ * @swagger
+ * /transaksi/{id}:
+ *   get:
+ *     summary: Detail Transaksi by ID
+ *     tags: [Transaksi]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID Transaksi
+ *     responses:
+ *       200:
+ *         description: Detail Transaksi
+ */
+router.get("/:id", transaksiController.detailTransaksi);
+
+/**
+ * @swagger
+ * /transaksi/{id}:
+ *   delete:
+ *     summary: Hapus Transaksi
+ *     tags: [Transaksi]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID Transaksi
+ *     responses:
+ *       200:
+ *         description: Transaksi berhasil dihapus
+ */
+router.delete("/:id", transaksiController.deleteTransaksi);
+
+module.exports = router;
