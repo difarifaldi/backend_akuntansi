@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const sequelize = require("./config/database");
 const swaggerJsdoc = require("swagger-jsdoc");
@@ -13,6 +14,9 @@ const ptRoutes = require("./routes/ptRoutes");
 const rekeningRoutes = require("./routes/rekeningRoutes");
 const transaksiRoutes = require("./routes/transaksiRoutes");
 const authRoutes = require("./routes/authRoutes");
+
+// aktifkan CORS di semua route
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
