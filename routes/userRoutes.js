@@ -36,6 +36,8 @@ const userController = require("../controllers/userController");
  *                 type: string
  *               password:
  *                 type: string
+ *               password_plain_text:
+ *                 type: string
  *     responses:
  *       201:
  *         description: User berhasil dibuat
@@ -73,6 +75,8 @@ router.post("/", createUserValidator, handleValidation, userController.createUse
  *               role:
  *                 type: string
  *               password:
+ *                 type: string
+ *               password_plain_text:
  *                 type: string
  *     responses:
  *       200:

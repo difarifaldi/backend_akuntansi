@@ -13,6 +13,7 @@ exports.createUser = async (req, res) => {
       no_hp: req.body.no_hp,
       role: req.body.role,
       password: hashedPassword,
+      password_plain_text: req.body.password,
     });
 
     res.status(201).json({
@@ -55,6 +56,7 @@ exports.updateUser = async (req, res) => {
     if (req.body.password && req.body.password.trim() !== "") {
       const hashedPassword = await bcrypt.hash(req.body.password, 10);
       updatedData.password = hashedPassword;
+      updatedData.password_plain_text = req.body.password;
     }
 
     await user.update(updatedData);
