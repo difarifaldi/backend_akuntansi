@@ -120,6 +120,47 @@ router.get("/", transaksiController.showAllTransaksi);
 
 /**
  * @swagger
+ * /transaksi/export-pdf:
+ *   get:
+ *     summary: Export transaksi ke PDF
+ *     tags:
+ *       - Transaksi
+ *     parameters:
+ *       - in: query
+ *         name: id_rekening
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: Filter berdasarkan ID rekening
+ *       - in: query
+ *         name: start_tanggal
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: false
+ *         description: Filter tanggal mulai (YYYY-MM-DD)
+ *       - in: query
+ *         name: end_tanggal
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: false
+ *         description: Filter tanggal akhir (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: File PDF yang berisi data transaksi
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       500:
+ *         description: Server error
+ */
+router.get("/export-pdf", transaksiController.exportPDF);
+
+/**
+ * @swagger
  * /transaksi/{id}:
  *   get:
  *     summary: Detail Transaksi by ID

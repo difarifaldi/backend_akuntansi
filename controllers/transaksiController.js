@@ -3,6 +3,7 @@ const TableOfAkun = require("../models/tableOfAkun");
 const Rekening = require("../models/rekening");
 const User = require("../models/user");
 const { Op } = require("sequelize");
+const puppeteer = require("puppeteer");
 
 // CREATE Transaksi
 exports.createTransaksi = async (req, res) => {
@@ -181,6 +182,117 @@ exports.deleteTransaksi = async (req, res) => {
     }
 
     res.status(200).json({ message: "Berhasil menghapus transaksi & update saldo" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//Export PDF
+exports.exportPDF = async (req, res) => {
+  try {
+    const { id_rekening, start_tanggal, end_tanggal } = req.query;
+
+    // Siapkan where clause
+    const whereClause = {};
+
+    if (id_rekening) {
+      whereClause.id_rekening = id_rekening;
+    }
+
+    if (start_tanggal && end_tanggal) {
+      whereClause.tanggal = {
+        [Op.between]: [start_tanggal, end_tanggal],
+      };
+    } else if (start_tanggal) {
+      whereClause.tanggal = {
+        [Op.gte]: start_tanggal,
+      };
+    } else if (end_tanggal) {
+      whereClause.tanggal = {
+        [Op.lte]: end_tanggal,
+      };
+    }
+
+    // Ambil data transaksi sesuai filter
+    const transaksi = await Transaksi.findAll({
+      where: whereClause,
+      include: [{ model: TableOfAkun }, { model: Rekening }, { model: User }],
+      order: [
+        ["tanggal", "DESC"],
+        ["createdAt", "DESC"],
+      ],
+    });
+
+    // Generate HTML untuk PDF
+    const html = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ccc; padding: 6px; font-size: 12px; }
+            th { background: #f0f0f0; }
+          </style>
+        </head>
+        <body>
+          <h2>Laporan Transaksi</h2>
+          ${start_tanggal || end_tanggal ? `<p>Periode: ${start_tanggal || "-"} s/d ${end_tanggal || "-"}</p>` : ""}
+          ${id_rekening ? `<p>Rekening: ${transaksi[0]?.Rekening?.nama_rekening || "Tidak ditemukan"}</p>` : ""}
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Rekening</th>
+                <th>Akun</th>
+                <th>Keterangan</th>
+                <th>Debit</th>
+                <th>Kredit</th>
+                <th>Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                transaksi.length > 0
+                  ? transaksi
+                      .map((trx) => {
+                        return `
+                          <tr>
+                            <td>${trx.tanggal}</td>
+                            <td>${trx.Rekening?.nama_rekening || "-"}</td>
+                            <td>${trx.TableOfAkun?.nama_akun || "-"}</td>
+                            <td>${trx.keterangan}</td>
+                            <td>${trx.debit}</td>
+                            <td>${trx.kredit}</td>
+                            <td>${trx.saldo}</td>
+                          </tr>
+                        `;
+                      })
+                      .join("")
+                  : `<tr><td colspan="7">Tidak ada data</td></tr>`
+              }
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    // Generate PDF dari HTML
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+    await browser.close();
+
+    // Kirim PDF ke client
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=laporan-transaksi.pdf",
+    });
+
+    res.send(pdfBuffer);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
