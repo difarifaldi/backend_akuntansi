@@ -19,7 +19,7 @@ exports.createTipeAkun = async (req, res) => {
 
 // SHOW ALL Tipe Akun
 exports.showAllTipeAkun = async (req, res) => {
-  const types = await TipeAkun.findAll();
+  const types = await TipeAkun.findAll({ order: [["createdAt", "DESC"]] });
   res.json(types);
 };
 

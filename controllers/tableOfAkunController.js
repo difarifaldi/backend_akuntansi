@@ -23,7 +23,8 @@ exports.createTableOfAkun = async (req, res) => {
 exports.showAllTableOfAkun = async (req, res) => {
   try {
     const accounts = await TableOfAkun.findAll({
-      include: [{ model: TipeAkun }], // biar bisa lihat tipe akun juga
+      include: [{ model: TipeAkun }],
+      order: [["createdAt", "DESC"]], // biar bisa lihat tipe akun juga
     });
     res.json(accounts);
   } catch (err) {

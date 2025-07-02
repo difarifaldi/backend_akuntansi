@@ -19,7 +19,7 @@ exports.createPt = async (req, res) => {
 
 // SHOW ALL PT
 exports.showAllPt = async (req, res) => {
-  const types = await Pt.findAll();
+  const types = await Pt.findAll({ order: [["createdAt", "DESC"]] });
   res.json(types);
 };
 

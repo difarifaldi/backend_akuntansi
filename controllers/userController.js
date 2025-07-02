@@ -27,7 +27,7 @@ exports.createUser = async (req, res) => {
 
 // SHOW ALL USER
 exports.showAllUser = async (req, res) => {
-  const users = await User.findAll();
+  const users = await User.findAll({ order: [["createdAt", "DESC"]] });
   res.json(users);
 };
 

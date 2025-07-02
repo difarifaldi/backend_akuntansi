@@ -23,7 +23,8 @@ exports.createRekening = async (req, res) => {
 exports.showAllRekening = async (req, res) => {
   try {
     const accounts = await Rekening.findAll({
-      include: [{ model: Pt }], // biar bisa lihat pt juga
+      include: [{ model: Pt }],
+      order: [["createdAt", "DESC"]], // biar bisa lihat pt juga
     });
     res.json(accounts);
   } catch (err) {
