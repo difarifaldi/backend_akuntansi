@@ -8,7 +8,6 @@ exports.createTransaksiValidator = [
   body("kredit").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Kredit harus angka desimal"),
   body("saldo").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Saldo harus angka desimal"),
   body("id_rekening").optional().isInt().withMessage("ID rekening harus angka"),
-  body("mata_uang").notEmpty().withMessage("Mata uang wajib diisi").isLength({ min: 3, max: 3 }).withMessage("Mata uang harus 3 huruf, contoh: IDR, USD"),
   body("created_by").notEmpty().withMessage("Created by wajib diisi").isInt().withMessage("Created by harus angka"),
 ];
 
@@ -20,6 +19,5 @@ exports.updateTransaksiValidator = [
   body("kredit").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Kredit harus angka desimal"),
   body("saldo").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Saldo harus angka desimal"),
   body("id_rekening").optional().isInt().withMessage("ID rekening harus angka"),
-  body("mata_uang").optional().isLength({ min: 3, max: 3 }).withMessage("Mata uang harus 3 huruf, contoh: IDR, USD"),
   body("created_by").optional().isInt().withMessage("Created by harus angka"),
 ];

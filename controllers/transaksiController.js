@@ -5,7 +5,7 @@ const User = require("../models/user");
 const { Op } = require("sequelize");
 const puppeteer = require("puppeteer");
 
-// CREATE Transaksi
+//create rekening
 exports.createTransaksi = async (req, res) => {
   try {
     // cari saldo terakhir untuk akun ini
@@ -30,15 +30,33 @@ exports.createTransaksi = async (req, res) => {
       keterangan: req.body.keterangan,
       debit: debitBaru,
       kredit: kreditBaru,
-      saldo: saldoBaru, // dihitung otomatis
+      saldo: saldoBaru,
       id_rekening: req.body.id_rekening || null,
       mata_uang: req.body.mata_uang,
       created_by: req.body.created_by,
     });
 
+    // Ambil semua transaksi dari rekening tsb
+    const transaksiAll = await Transaksi.findAll({
+      where: { id_rekening: req.body.id_rekening },
+    });
+
+    // Hitung ulang total saldo dari semua transaksi
+    const totalSaldoSemua = transaksiAll.reduce((total, trx) => {
+      return total + parseFloat(trx.debit || 0) - parseFloat(trx.kredit || 0);
+    }, 0);
+
+    // 🔧 Ambil rekening-nya dulu
+    const rekening = await Rekening.findByPk(req.body.id_rekening);
+
+    // Update total_saldo rekening
+    const update_rekening = await rekening.update({
+      total_saldo: totalSaldoSemua,
+    });
+
     res.status(201).json({
       message: "Berhasil menambahkan transaksi",
-      data: transaksi,
+      data: [transaksi, update_rekening],
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -140,8 +158,16 @@ exports.updateTransaksi = async (req, res) => {
       await trx.update({ saldo: saldo });
     }
 
+    //  Update total_saldo di Rekening
+    const totalSaldoBaru = semuaTransaksi.reduce((total, trx) => {
+      return total + parseFloat(trx.debit || 0) - parseFloat(trx.kredit || 0);
+    }, 0);
+
+    const rekening = await Rekening.findByPk(req.body.id_rekening || rekeningIdLama);
+    await rekening.update({ total_saldo: totalSaldoBaru });
+
     res.status(200).json({
-      message: "Berhasil mengubah transaksi & update saldo",
+      message: "Berhasil mengubah transaksi & update saldo Rekening",
       data: transaksi,
     });
   } catch (err) {

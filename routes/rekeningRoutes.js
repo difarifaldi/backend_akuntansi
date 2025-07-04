@@ -30,6 +30,8 @@ const rekeningController = require("../controllers/rekeningController");
  *                 type: string
  *               id_pt:
  *                 type: integer
+ *               mata_uang:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Rekening berhasil dibuat
@@ -62,6 +64,8 @@ router.post("/", createRekeningValidator, handleValidation, rekeningController.c
  *                 type: string
  *               id_pt:
  *                 type: integer
+ *               mata_uang:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Rekening berhasil diupdate

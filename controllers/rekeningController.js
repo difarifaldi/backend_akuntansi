@@ -8,6 +8,7 @@ exports.createRekening = async (req, res) => {
       no_rekening: req.body.no_rekening,
       nama_rekening: req.body.nama_rekening,
       id_pt: req.body.id_pt,
+      mata_uang: req.body.mata_uang,
     });
 
     res.status(201).json({
@@ -57,6 +58,7 @@ exports.updateRekening = async (req, res) => {
       no_rekening: req.body.no_rekening,
       nama_rekening: req.body.nama_rekening,
       id_pt: req.body.id_pt,
+      mata_uang: req.body.mata_uang,
     };
 
     await account.update(updatedData);

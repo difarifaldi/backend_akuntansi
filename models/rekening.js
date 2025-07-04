@@ -13,6 +13,14 @@ const Rekening = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    mata_uang: {
+      type: DataTypes.STRING(3), // ISO 4217: "IDR", "USD"
+      allowNull: true,
+    },
+    total_saldo: {
+      type: DataTypes.DECIMAL(20, 2),
+      defaultValue: 0,
+    },
     id_pt: {
       type: DataTypes.INTEGER,
       allowNull: false,

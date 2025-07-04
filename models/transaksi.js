@@ -49,7 +49,7 @@ const Transaksi = sequelize.define(
     },
     mata_uang: {
       type: DataTypes.STRING(3), // ISO 4217: "IDR", "USD"
-      allowNull: false,
+      allowNull: true,
     },
     created_by: {
       type: DataTypes.INTEGER,
