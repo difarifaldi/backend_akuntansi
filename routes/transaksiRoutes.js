@@ -92,7 +92,7 @@ router.put("/:id", updateTransaksiValidator, handleValidation, transaksiControll
  * @swagger
  * /transaksi:
  *   get:
- *     summary: Ambil semua Transaksi (bisa filter per rekening dan range tanggal)
+ *     summary: Ambil semua Transaksi (bisa filter dengan banyak parameter)
  *     tags: [Transaksi]
  *     parameters:
  *       - in: query
@@ -100,6 +100,16 @@ router.put("/:id", updateTransaksiValidator, handleValidation, transaksiControll
  *         schema:
  *           type: integer
  *         description: Filter transaksi berdasarkan ID Rekening
+ *       - in: query
+ *         name: id_table_of_akun
+ *         schema:
+ *           type: integer
+ *         description: Filter transaksi berdasarkan ID Akun
+ *       - in: query
+ *         name: keterangan
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan keterangan (tidak case-sensitive)
  *       - in: query
  *         name: start_tanggal
  *         schema:
@@ -112,6 +122,17 @@ router.put("/:id", updateTransaksiValidator, handleValidation, transaksiControll
  *           type: string
  *           format: date
  *         description: Filter transaksi sampai tanggal (YYYY-MM-DD)
+ *       - in: query
+ *         name: tipe_transaksi
+ *         schema:
+ *           type: string
+ *           enum: [debit, kredit]
+ *         description: Filter berdasarkan tipe transaksi (debit atau kredit)
+ *       - in: query
+ *         name: mata_uang
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan mata uang dari tabel Rekening (tidak case-sensitive)
  *     responses:
  *       200:
  *         description: Daftar Transaksi

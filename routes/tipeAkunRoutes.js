@@ -68,8 +68,19 @@ router.put("/:id", updateTipeAkunValidator, handleValidation, tipeAkunController
  * @swagger
  * /tipe-akun:
  *   get:
- *     summary: Ambil semua Tipe Akun
+ *     summary: Ambil semua Tipe Akun (dapat difilter berdasarkan nama_tipe dan no_tipe)
  *     tags: [Tipe Akun]
+ *     parameters:
+ *       - in: query
+ *         name: nama_tipe
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nama tipe akun (tidak case-sensitive)
+ *       - in: query
+ *         name: no_tipe
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nomor tipe akun (mirip)
  *     responses:
  *       200:
  *         description: Daftar Tipe Akun

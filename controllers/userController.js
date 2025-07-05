@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const { Op, fn, col, where } = require("sequelize");
 
 // CREATE USER
 exports.createUser = async (req, res) => {
@@ -25,10 +26,56 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// SHOW ALL USER
+//Show All User
 exports.showAllUser = async (req, res) => {
-  const users = await User.findAll({ order: [["createdAt", "DESC"]] });
-  res.json(users);
+  try {
+    const { nama, email, username, no_hp, role } = req.query;
+
+    const andConditions = [];
+
+    if (nama) {
+      andConditions.push(
+        where(fn("LOWER", col("nama")), {
+          [Op.like]: `%${nama.toLowerCase()}%`,
+        })
+      );
+    }
+
+    if (email) {
+      andConditions.push({
+        email: { [Op.like]: `%${email}%` },
+      });
+    }
+
+    if (username) {
+      andConditions.push({
+        username: { [Op.like]: `%${username}%` },
+      });
+    }
+
+    if (no_hp) {
+      andConditions.push({
+        no_hp: { [Op.like]: `%${no_hp}%` },
+      });
+    }
+
+    if (role) {
+      andConditions.push({
+        role: role,
+      });
+    }
+
+    const whereClause = andConditions.length > 0 ? { [Op.and]: andConditions } : {};
+
+    const users = await User.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // SHOW DETAIL USER

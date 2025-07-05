@@ -76,12 +76,34 @@ router.put("/:id", updateRekeningValidator, handleValidation, rekeningController
  * @swagger
  * /rekening:
  *   get:
- *     summary: Ambil semua Rekening
+ *     summary: Ambil semua Rekening (dapat difilter berdasarkan no_rekening, nama_rekening, id_pt, mata_uang)
  *     tags: [Rekening]
+ *     parameters:
+ *       - in: query
+ *         name: no_rekening
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nomor rekening
+ *       - in: query
+ *         name: nama_rekening
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nama rekening (tidak case-sensitive)
+ *       - in: query
+ *         name: id_pt
+ *         schema:
+ *           type: integer
+ *         description: Filter berdasarkan ID PT
+ *       - in: query
+ *         name: mata_uang
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan mata uang
  *     responses:
  *       200:
  *         description: Daftar Rekening
  */
+
 router.get("/", rekeningController.showAllRekening);
 
 /**

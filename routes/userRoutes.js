@@ -88,8 +88,34 @@ router.put("/:id", updateUserValidator, handleValidation, userController.updateU
  * @swagger
  * /users:
  *   get:
- *     summary: Ambil semua user
+ *     summary: Ambil semua user (dapat difilter berdasarkan nama, email, username, no_hp, dan role)
  *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: nama
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nama (tidak case-sensitive)
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan email
+ *       - in: query
+ *         name: username
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan username
+ *       - in: query
+ *         name: no_hp
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nomor HP
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan role user
  *     responses:
  *       200:
  *         description: Daftar user

@@ -68,8 +68,19 @@ router.put("/:id", updatePtValidator, handleValidation, ptController.updatePt);
  * @swagger
  * /pt:
  *   get:
- *     summary: Ambil semua PT
+ *     summary: Ambil semua PT (dapat difilter berdasarkan nama_pt dan keterangan)
  *     tags: [PT]
+ *     parameters:
+ *       - in: query
+ *         name: nama_pt
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan nama PT (tidak case-sensitive)
+ *       - in: query
+ *         name: keterangan
+ *         schema:
+ *           type: string
+ *         description: Filter berdasarkan keterangan PT (tidak case-sensitive)
  *     responses:
  *       200:
  *         description: Daftar PT

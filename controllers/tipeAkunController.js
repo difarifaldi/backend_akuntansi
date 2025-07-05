@@ -1,5 +1,5 @@
 const TipeAkun = require("../models/tipeAkun");
-
+const { Op, fn, col, where } = require("sequelize");
 // CREATE Tipe Akun
 exports.createTipeAkun = async (req, res) => {
   try {
@@ -19,8 +19,35 @@ exports.createTipeAkun = async (req, res) => {
 
 // SHOW ALL Tipe Akun
 exports.showAllTipeAkun = async (req, res) => {
-  const types = await TipeAkun.findAll({ order: [["createdAt", "DESC"]] });
-  res.json(types);
+  try {
+    const { nama_tipe, no_tipe } = req.query;
+    const andConditions = [];
+
+    if (nama_tipe) {
+      andConditions.push(
+        where(fn("LOWER", col("nama_tipe")), {
+          [Op.like]: `%${nama_tipe.toLowerCase()}%`,
+        })
+      );
+    }
+
+    if (no_tipe) {
+      andConditions.push({
+        no_tipe: { [Op.like]: `%${no_tipe}%` },
+      });
+    }
+
+    const whereClause = andConditions.length > 0 ? { [Op.and]: andConditions } : {};
+
+    const types = await TipeAkun.findAll({
+      where: whereClause,
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json(types);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // SHOW DETAIL Tipe Akun

@@ -1,4 +1,5 @@
 const Pt = require("../models/pt");
+const { Op, fn, col, where } = require("sequelize");
 
 // CREATE PT
 exports.createPt = async (req, res) => {
@@ -19,7 +20,27 @@ exports.createPt = async (req, res) => {
 
 // SHOW ALL PT
 exports.showAllPt = async (req, res) => {
-  const types = await Pt.findAll({ order: [["createdAt", "DESC"]] });
+  const { nama_pt, keterangan } = req.query;
+  const andConditions = [];
+
+  if (nama_pt) {
+    andConditions.push(
+      where(fn("LOWER", col("nama_pt")), {
+        [Op.like]: `%${nama_pt.toLowerCase()}%`,
+      })
+    );
+  }
+
+  if (keterangan) {
+    andConditions.push(
+      where(fn("LOWER", col("keterangan")), {
+        [Op.like]: `%${keterangan.toLowerCase()}%`,
+      })
+    );
+  }
+  const whereClause = andConditions.length > 0 ? { [Op.and]: andConditions } : {};
+
+  const types = await Pt.findAll({ where: whereClause, order: [["createdAt", "DESC"]] });
   res.json(types);
 };
 

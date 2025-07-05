@@ -2,7 +2,7 @@ const Transaksi = require("../models/transaksi");
 const TableOfAkun = require("../models/tableOfAkun");
 const Rekening = require("../models/rekening");
 const User = require("../models/user");
-const { Op } = require("sequelize");
+const { Op, where, fn, col } = require("sequelize");
 const puppeteer = require("puppeteer");
 
 //create rekening
@@ -66,13 +66,25 @@ exports.createTransaksi = async (req, res) => {
 // SHOW ALL Transaksi (dengan filter optional by id_rekening)
 exports.showAllTransaksi = async (req, res) => {
   try {
-    const { id_rekening, start_tanggal, end_tanggal } = req.query; // ambil dari query param
+    const { id_rekening, start_tanggal, end_tanggal, id_table_of_akun, keterangan, tipe_transaksi, mata_uang } = req.query; // ambil dari query param
 
     // Siapkan where condition
     const whereClause = {};
 
     if (id_rekening) {
       whereClause.id_rekening = id_rekening;
+    }
+
+    if (id_table_of_akun) {
+      whereClause.id_table_of_akun = id_table_of_akun;
+    }
+
+    if (keterangan) {
+      whereClause[Op.and] = [
+        where(fn("LOWER", col("keterangan")), {
+          [Op.like]: `%${keterangan.toLowerCase()}%`,
+        }),
+      ];
     }
 
     if (start_tanggal && end_tanggal) {
@@ -89,9 +101,29 @@ exports.showAllTransaksi = async (req, res) => {
       };
     }
 
+    // Filter berdasarkan tipe transaksi
+    if (tipe_transaksi === "debit") {
+      whereClause.debit = { [Op.gt]: 0 };
+    } else if (tipe_transaksi === "kredit") {
+      whereClause.kredit = { [Op.gt]: 0 };
+    }
+
+    const include = [
+      { model: TableOfAkun },
+      {
+        model: Rekening,
+        where: mata_uang
+          ? where(fn("LOWER", col("Rekening.mata_uang")), {
+              [Op.like]: mata_uang.toLowerCase(),
+            })
+          : undefined,
+      },
+      { model: User, attributes: ["id", "nama", "username"] },
+    ];
+
     const transaksi = await Transaksi.findAll({
       where: whereClause,
-      include: [{ model: TableOfAkun }, { model: Rekening }, { model: User, attributes: ["id", "nama", "username"] }],
+      include,
       order: [
         ["tanggal", "DESC"],
         ["createdAt", "DESC"],

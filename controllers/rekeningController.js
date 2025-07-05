@@ -1,5 +1,6 @@
 const Rekening = require("../models/rekening");
 const Pt = require("../models/pt");
+const { Op, fn, col, where } = require("sequelize");
 
 // CREATE rekening
 exports.createRekening = async (req, res) => {
@@ -23,10 +24,45 @@ exports.createRekening = async (req, res) => {
 // SHOW ALL rekening
 exports.showAllRekening = async (req, res) => {
   try {
+    const { no_rekening, nama_rekening, id_pt, mata_uang } = req.query;
+    const andConditions = [];
+
+    if (no_rekening) {
+      andConditions.push({
+        no_rekening: {
+          [Op.like]: `%${no_rekening}%`,
+        },
+      });
+    }
+
+    if (nama_rekening) {
+      andConditions.push(
+        where(fn("LOWER", col("nama_rekening")), {
+          [Op.like]: `%${nama_rekening.toLowerCase()}%`,
+        })
+      );
+    }
+
+    if (id_pt) {
+      andConditions.push({ id_pt });
+    }
+
+    if (mata_uang) {
+      andConditions.push({
+        mata_uang: {
+          [Op.like]: `%${mata_uang}%`,
+        },
+      });
+    }
+
+    const whereClause = andConditions.length > 0 ? { [Op.and]: andConditions } : {};
+
     const accounts = await Rekening.findAll({
+      where: whereClause,
       include: [{ model: Pt }],
-      order: [["createdAt", "DESC"]], // biar bisa lihat pt juga
+      order: [["createdAt", "DESC"]],
     });
+
     res.json(accounts);
   } catch (err) {
     res.status(500).json({ error: err.message });
