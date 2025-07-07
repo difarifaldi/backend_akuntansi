@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        table-layout: fixed;
+      }
+
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 6px;
+        font-size: 12px;
+        word-wrap: break-word;
+      }
+
+      th {
+        background: #f0f0f0;
+      }
+
+      .col-kategori {
+        width: 70%;
+      }
+
+      .col-total {
+        width: 30%;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Laporan Laba Rugi</h2>
+    <p>Periode: <%= typeof start_tanggal !== "undefined" ? start_tanggal : "-" %> s/d <%= typeof end_tanggal !== "undefined" ? end_tanggal : "-" %></p>
+    <p>Mata Uang: <%= mata_uang?.toUpperCase() || "-" %></p>
+
+    <h3>Pendapatan (Kredit)</h3>
+    <table>
+      <tr>
+        <th class="col-kategori">Kategori</th>
+        <th class="col-total">Total</th>
+      </tr>
+      <% Object.entries(data.kredit).forEach(([tipe, total]) => { %>
+      <tr>
+        <td class="col-kategori"><%= tipe %></td>
+        <td class="col-total"><%= total.toLocaleString() %></td>
+      </tr>
+      <% }) %>
+      <tr>
+        <th class="col-kategori">Total Kredit</th>
+        <th class="col-total"><%= data.total_kredit.toLocaleString() %></th>
+      </tr>
+    </table>
+
+    <h3>Beban (Debit)</h3>
+    <table>
+      <tr>
+        <th class="col-kategori">Kategori</th>
+        <th class="col-total">Total</th>
+      </tr>
+      <% Object.entries(data.debit).forEach(([tipe, total]) => { %>
+      <tr>
+        <td class="col-kategori"><%= tipe %></td>
+        <td class="col-total"><%= total.toLocaleString() %></td>
+      </tr>
+      <% }) %>
+      <tr>
+        <th class="col-kategori">Total Debit</th>
+        <th class="col-total"><%= data.total_debit.toLocaleString() %></th>
+      </tr>
+    </table>
+
+    <h3>Laba/Rugi</h3>
+    <p><strong> <%= (data.total_kredit - data.total_debit).toLocaleString() %> </strong></p>
+  </body>
+</html>

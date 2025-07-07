@@ -14,10 +14,9 @@ const ptRoutes = require("./routes/ptRoutes");
 const rekeningRoutes = require("./routes/rekeningRoutes");
 const transaksiRoutes = require("./routes/transaksiRoutes");
 const authRoutes = require("./routes/authRoutes");
+const labaRugiRoutes = require("./routes/labaRugiRoutes");
 
-// aktifkan CORS di semua route
 app.use(cors());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -51,6 +50,7 @@ app.use("/pt", ptRoutes);
 app.use("/rekening", rekeningRoutes);
 app.use("/transaksi", transaksiRoutes);
 app.use("/auth", authRoutes);
+app.use("/laba-rugi", labaRugiRoutes);
 
 // Sync DB
 sequelize
