@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 exports.login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, rememberMe } = req.body;
 
     // cari user by username
     const user = await User.findOne({ where: { username } });
@@ -27,8 +27,10 @@ exports.login = async (req, res) => {
         nama: user.nama,
         role: user.role,
       },
-      process.env.JWT_SECRET || "secret", // sebaiknya taruh di .env
-      { expiresIn: "24h" } // token berlaku 24 jam
+      process.env.JWT_SECRET || "secret",
+      {
+        expiresIn: rememberMe ? "30d" : "1d",
+      }
     );
 
     res.status(200).json({
