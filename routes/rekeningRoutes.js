@@ -3,6 +3,7 @@ const router = express.Router();
 const { createRekeningValidator, updateRekeningValidator } = require("../validators/rekeningValidator");
 const handleValidation = require("../middlewares/validationResultHandler");
 const rekeningController = require("../controllers/rekeningController");
+const { authenticate, authorizeRole } = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
@@ -36,7 +37,7 @@ const rekeningController = require("../controllers/rekeningController");
  *       201:
  *         description: Rekening berhasil dibuat
  */
-router.post("/", createRekeningValidator, handleValidation, rekeningController.createRekening);
+router.post("/", authenticate, authorizeRole("admin", "owner"), createRekeningValidator, handleValidation, rekeningController.createRekening);
 
 /**
  * @swagger
@@ -70,7 +71,7 @@ router.post("/", createRekeningValidator, handleValidation, rekeningController.c
  *       200:
  *         description: Rekening berhasil diupdate
  */
-router.put("/:id", updateRekeningValidator, handleValidation, rekeningController.updateRekening);
+router.put("/:id", authenticate, authorizeRole("admin", "owner"), updateRekeningValidator, handleValidation, rekeningController.updateRekening);
 
 /**
  * @swagger
@@ -104,7 +105,7 @@ router.put("/:id", updateRekeningValidator, handleValidation, rekeningController
  *         description: Daftar Rekening
  */
 
-router.get("/", rekeningController.showAllRekening);
+router.get("/", authenticate, authorizeRole("admin", "owner"), rekeningController.showAllRekening);
 
 /**
  * @swagger
@@ -123,7 +124,7 @@ router.get("/", rekeningController.showAllRekening);
  *       200:
  *         description: Detail Rekening
  */
-router.get("/:id", rekeningController.detailRekening);
+router.get("/:id", authenticate, authorizeRole("admin", "owner"), rekeningController.detailRekening);
 
 /**
  * @swagger
@@ -142,6 +143,6 @@ router.get("/:id", rekeningController.detailRekening);
  *       200:
  *         description: Rekening berhasil dihapus
  */
-router.delete("/:id", rekeningController.deleteRekening);
+router.delete("/:id", authenticate, authorizeRole("admin", "owner"), rekeningController.deleteRekening);
 
 module.exports = router;

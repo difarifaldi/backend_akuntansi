@@ -3,6 +3,7 @@ const router = express.Router();
 const { createTipeAkunValidator, updateTipeAkunValidator } = require("../validators/tipeAkunValidator");
 const handleValidation = require("../middlewares/validationResultHandler");
 const tipeAkunController = require("../controllers/tipeAkunController");
+const { authenticate, authorizeRole } = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
@@ -32,7 +33,7 @@ const tipeAkunController = require("../controllers/tipeAkunController");
  *       201:
  *         description: Tipe Akun berhasil dibuat
  */
-router.post("/", createTipeAkunValidator, handleValidation, tipeAkunController.createTipeAkun);
+router.post("/", authenticate, authorizeRole("admin", "owner"), createTipeAkunValidator, handleValidation, tipeAkunController.createTipeAkun);
 
 /**
  * @swagger
@@ -62,7 +63,7 @@ router.post("/", createTipeAkunValidator, handleValidation, tipeAkunController.c
  *       200:
  *         description: Tipe Akun berhasil diupdate
  */
-router.put("/:id", updateTipeAkunValidator, handleValidation, tipeAkunController.updateTipeAkun);
+router.put("/:id", authenticate, authorizeRole("admin", "owner"), updateTipeAkunValidator, handleValidation, tipeAkunController.updateTipeAkun);
 
 /**
  * @swagger
@@ -85,7 +86,7 @@ router.put("/:id", updateTipeAkunValidator, handleValidation, tipeAkunController
  *       200:
  *         description: Daftar Tipe Akun
  */
-router.get("/", tipeAkunController.showAllTipeAkun);
+router.get("/", authenticate, authorizeRole("admin", "owner"), tipeAkunController.showAllTipeAkun);
 
 /**
  * @swagger
@@ -104,7 +105,7 @@ router.get("/", tipeAkunController.showAllTipeAkun);
  *       200:
  *         description: Detail Tipe Akun
  */
-router.get("/:id", tipeAkunController.detailTipeAkun);
+router.get("/:id", authenticate, authorizeRole("admin", "owner"), tipeAkunController.detailTipeAkun);
 
 /**
  * @swagger
@@ -123,6 +124,6 @@ router.get("/:id", tipeAkunController.detailTipeAkun);
  *       200:
  *         description: Tipe Akun berhasil dihapus
  */
-router.delete("/:id", tipeAkunController.deleteTipeAkun);
+router.delete("/:id", authenticate, authorizeRole("admin", "owner"), tipeAkunController.deleteTipeAkun);
 
 module.exports = router;

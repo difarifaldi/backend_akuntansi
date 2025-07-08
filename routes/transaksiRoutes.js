@@ -3,7 +3,7 @@ const router = express.Router();
 const { createTransaksiValidator, updateTransaksiValidator } = require("../validators/transaksiValidator");
 const handleValidation = require("../middlewares/validationResultHandler");
 const transaksiController = require("../controllers/transaksiController");
-
+const { authenticate, authorizeRole } = require("../middlewares/authMiddleware");
 /**
  * @swagger
  * tags:
@@ -44,7 +44,7 @@ const transaksiController = require("../controllers/transaksiController");
  *       201:
  *         description: Transaksi berhasil dibuat
  */
-router.post("/", createTransaksiValidator, handleValidation, transaksiController.createTransaksi);
+router.post("/", authenticate, authorizeRole("admin", "owner", "user"), createTransaksiValidator, handleValidation, transaksiController.createTransaksi);
 
 /**
  * @swagger
@@ -86,7 +86,7 @@ router.post("/", createTransaksiValidator, handleValidation, transaksiController
  *       200:
  *         description: Transaksi berhasil diupdate
  */
-router.put("/:id", updateTransaksiValidator, handleValidation, transaksiController.updateTransaksi);
+router.put("/:id", authenticate, authorizeRole("admin", "owner", "user"), updateTransaksiValidator, handleValidation, transaksiController.updateTransaksi);
 
 /**
  * @swagger
@@ -137,7 +137,7 @@ router.put("/:id", updateTransaksiValidator, handleValidation, transaksiControll
  *       200:
  *         description: Daftar Transaksi
  */
-router.get("/", transaksiController.showAllTransaksi);
+router.get("/", authenticate, authorizeRole("admin", "owner", "user"), transaksiController.showAllTransaksi);
 
 /**
  * @swagger
@@ -178,7 +178,7 @@ router.get("/", transaksiController.showAllTransaksi);
  *       500:
  *         description: Server error
  */
-router.get("/export-pdf", transaksiController.exportPDF);
+router.get("/export-pdf", authenticate, authorizeRole("admin", "owner", "user"), transaksiController.exportPDF);
 
 /**
  * @swagger
@@ -197,7 +197,7 @@ router.get("/export-pdf", transaksiController.exportPDF);
  *       200:
  *         description: Detail Transaksi
  */
-router.get("/:id", transaksiController.detailTransaksi);
+router.get("/:id", authenticate, authorizeRole("admin", "owner", "user"), transaksiController.detailTransaksi);
 
 /**
  * @swagger
@@ -216,6 +216,6 @@ router.get("/:id", transaksiController.detailTransaksi);
  *       200:
  *         description: Transaksi berhasil dihapus
  */
-router.delete("/:id", transaksiController.deleteTransaksi);
+router.delete("/:id", authenticate, authorizeRole("admin", "owner"), transaksiController.deleteTransaksi);
 
 module.exports = router;

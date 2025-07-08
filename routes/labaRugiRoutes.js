@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const labaRugiController = require("../controllers/labaRugiController");
+const { authenticate, authorizeRole } = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
@@ -42,7 +43,7 @@ const labaRugiController = require("../controllers/labaRugiController");
  *       200:
  *         description: Laporan laba rugi berhasil diambil
  */
-router.get("/", labaRugiController.laporanLabaRugi);
+router.get("/", authenticate, authorizeRole("admin", "owner", "user"), labaRugiController.laporanLabaRugi);
 
 /**
  * @swagger
@@ -77,6 +78,6 @@ router.get("/", labaRugiController.laporanLabaRugi);
  *       200:
  *         description: File PDF laba rugi berhasil diunduh
  */
-router.get("/export", labaRugiController.exportLabaRugiPDF);
+router.get("/export", authenticate, authorizeRole("admin", "owner", "user"), labaRugiController.exportLabaRugiPDF);
 
 module.exports = router;

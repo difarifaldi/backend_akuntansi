@@ -3,6 +3,7 @@ const router = express.Router();
 const { createUserValidator, updateUserValidator } = require("../validators/userValidator");
 const handleValidation = require("../middlewares/validationResultHandler");
 const userController = require("../controllers/userController");
+const { authenticate, authorizeRole } = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
@@ -42,7 +43,7 @@ const userController = require("../controllers/userController");
  *       201:
  *         description: User berhasil dibuat
  */
-router.post("/", createUserValidator, handleValidation, userController.createUser);
+router.post("/", authenticate, authorizeRole("admin", "owner"), createUserValidator, handleValidation, userController.createUser);
 
 /**
  * @swagger
@@ -82,7 +83,7 @@ router.post("/", createUserValidator, handleValidation, userController.createUse
  *       200:
  *         description: User berhasil diupdate
  */
-router.put("/:id", updateUserValidator, handleValidation, userController.updateUser);
+router.put("/:id", authenticate, authorizeRole("admin", "owner"), updateUserValidator, handleValidation, userController.updateUser);
 
 /**
  * @swagger
@@ -120,7 +121,7 @@ router.put("/:id", updateUserValidator, handleValidation, userController.updateU
  *       200:
  *         description: Daftar user
  */
-router.get("/", userController.showAllUser);
+router.get("/", authenticate, authorizeRole("admin", "owner"), userController.showAllUser);
 
 /**
  * @swagger
@@ -139,7 +140,7 @@ router.get("/", userController.showAllUser);
  *       200:
  *         description: Detail user
  */
-router.get("/:id", userController.detailUser);
+router.get("/:id", authenticate, authorizeRole("admin", "owner"), userController.detailUser);
 
 /**
  * @swagger
@@ -158,6 +159,6 @@ router.get("/:id", userController.detailUser);
  *       200:
  *         description: User berhasil dihapus
  */
-router.delete("/:id", userController.deleteUser);
+router.delete("/:id", authenticate, authorizeRole("admin", "owner"), userController.deleteUser);
 
 module.exports = router;

@@ -3,6 +3,7 @@ const router = express.Router();
 const { createPtValidator, updatePtValidator } = require("../validators/ptValidator");
 const handleValidation = require("../middlewares/validationResultHandler");
 const ptController = require("../controllers/ptController");
+const { authenticate, authorizeRole } = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
@@ -32,7 +33,7 @@ const ptController = require("../controllers/ptController");
  *       201:
  *         description: PT berhasil dibuat
  */
-router.post("/", createPtValidator, handleValidation, ptController.createPt);
+router.post("/", authenticate, authorizeRole("admin", "owner"), createPtValidator, handleValidation, ptController.createPt);
 
 /**
  * @swagger
@@ -62,7 +63,7 @@ router.post("/", createPtValidator, handleValidation, ptController.createPt);
  *       200:
  *         description: PT berhasil diupdate
  */
-router.put("/:id", updatePtValidator, handleValidation, ptController.updatePt);
+router.put("/:id", authenticate, authorizeRole("admin", "owner"), updatePtValidator, handleValidation, ptController.updatePt);
 
 /**
  * @swagger
@@ -85,7 +86,7 @@ router.put("/:id", updatePtValidator, handleValidation, ptController.updatePt);
  *       200:
  *         description: Daftar PT
  */
-router.get("/", ptController.showAllPt);
+router.get("/", authenticate, authorizeRole("admin", "owner"), ptController.showAllPt);
 
 /**
  * @swagger
@@ -104,7 +105,7 @@ router.get("/", ptController.showAllPt);
  *       200:
  *         description: Detail PT
  */
-router.get("/:id", ptController.detailPt);
+router.get("/:id", authenticate, authorizeRole("admin", "owner"), ptController.detailPt);
 
 /**
  * @swagger
@@ -123,6 +124,6 @@ router.get("/:id", ptController.detailPt);
  *       200:
  *         description: PT berhasil dihapus
  */
-router.delete("/:id", ptController.deletePt);
+router.delete("/:id", authenticate, authorizeRole("admin", "owner"), ptController.deletePt);
 
 module.exports = router;

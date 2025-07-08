@@ -3,6 +3,7 @@ const router = express.Router();
 const { createTableOfAkunValidator, updateTableOfAkunValidator } = require("../validators/tableOfAkunValidator");
 const handleValidation = require("../middlewares/validationResultHandler");
 const tableOfAkunController = require("../controllers/tableOfAkunController");
+const { authenticate, authorizeRole } = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
@@ -34,7 +35,7 @@ const tableOfAkunController = require("../controllers/tableOfAkunController");
  *       201:
  *         description: Akun berhasil dibuat
  */
-router.post("/", createTableOfAkunValidator, handleValidation, tableOfAkunController.createTableOfAkun);
+router.post("/", authenticate, authorizeRole("admin", "owner"), createTableOfAkunValidator, handleValidation, tableOfAkunController.createTableOfAkun);
 
 /**
  * @swagger
@@ -66,7 +67,7 @@ router.post("/", createTableOfAkunValidator, handleValidation, tableOfAkunContro
  *       200:
  *         description: Akun berhasil diupdate
  */
-router.put("/:id", updateTableOfAkunValidator, handleValidation, tableOfAkunController.updateTableOfAkun);
+router.put("/:id", authenticate, authorizeRole("admin", "owner"), updateTableOfAkunValidator, handleValidation, tableOfAkunController.updateTableOfAkun);
 
 /**
  * @swagger
@@ -95,7 +96,7 @@ router.put("/:id", updateTableOfAkunValidator, handleValidation, tableOfAkunCont
  *         description: Daftar Akun
  */
 
-router.get("/", tableOfAkunController.showAllTableOfAkun);
+router.get("/", authenticate, authorizeRole("admin", "owner"), tableOfAkunController.showAllTableOfAkun);
 
 /**
  * @swagger
@@ -114,7 +115,7 @@ router.get("/", tableOfAkunController.showAllTableOfAkun);
  *       200:
  *         description: Detail Akun
  */
-router.get("/:id", tableOfAkunController.detailTableOfAkun);
+router.get("/:id", authenticate, authorizeRole("admin", "owner"), tableOfAkunController.detailTableOfAkun);
 
 /**
  * @swagger
@@ -133,6 +134,6 @@ router.get("/:id", tableOfAkunController.detailTableOfAkun);
  *       200:
  *         description: Akun berhasil dihapus
  */
-router.delete("/:id", tableOfAkunController.deleteTableOfAkun);
+router.delete("/:id", authenticate, authorizeRole("admin", "owner"), tableOfAkunController.deleteTableOfAkun);
 
 module.exports = router;

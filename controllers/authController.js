@@ -28,7 +28,7 @@ exports.login = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET || "secret", // sebaiknya taruh di .env
-      { expiresIn: "12h" } // token berlaku 12 jam
+      { expiresIn: "24h" } // token berlaku 24 jam
     );
 
     res.status(200).json({
