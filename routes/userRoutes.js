@@ -155,8 +155,6 @@ router.get("/:id", authenticate, authorizeRole("admin", "owner"), userController
  *         schema:
  *           type: string
  *         description: Username user
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Berhasil mendapatkan hint
@@ -171,7 +169,7 @@ router.get("/:id", authenticate, authorizeRole("admin", "owner"), userController
  *         description: User tidak ditemukan
  */
 
-router.get("/:username", authenticate, userController.getByUsername);
+router.get("/:username", userController.getByUsername);
 
 /**
  * @swagger
