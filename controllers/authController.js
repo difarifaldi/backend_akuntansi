@@ -45,3 +45,53 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// GET /auth/profile
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: ["id", "nama", "username", "email", "no_hp", "role"],
+    });
+
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// PUT /auth/profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+
+    const updatedData = {};
+    if (req.body.nama) updatedData.nama = req.body.nama;
+    if (req.body.email) updatedData.email = req.body.email;
+    if (req.body.username) updatedData.username = req.body.username;
+    if (req.body.no_hp) updatedData.no_hp = req.body.no_hp;
+
+    // Hanya admin boleh ubah role
+    if (req.body.role && req.user.role === "admin") {
+      updatedData.role = req.body.role;
+    }
+
+    // Update password jika dikirim
+    if (req.body.password && req.body.password.trim() !== "") {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      updatedData.password = hashedPassword;
+      updatedData.password_plain_text = req.body.password;
+    }
+
+    await user.update(updatedData);
+
+    res.status(200).json({
+      message: "Berhasil mengubah profil",
+      data: user,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

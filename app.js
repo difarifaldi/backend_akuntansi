@@ -31,11 +31,25 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:3000", // server
+        url: "http://localhost:3000",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
       },
     ],
   },
-  apis: ["./routes/*.js"], // akses ke semua routes
+  apis: ["./routes/*.js"], // akses semua file route
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
