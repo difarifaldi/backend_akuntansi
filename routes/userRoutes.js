@@ -144,7 +144,7 @@ router.get("/:id", authenticate, authorizeRole("admin", "owner"), userController
 
 /**
  * @swagger
- * /users/{username}:
+ * /users/get-hint/{username}:
  *   get:
  *     summary: Ambil hint password berdasarkan username
  *     tags: [Users]
@@ -169,7 +169,7 @@ router.get("/:id", authenticate, authorizeRole("admin", "owner"), userController
  *         description: User tidak ditemukan
  */
 
-router.get("/:username", userController.getByUsername);
+router.get("/get-hint/:username", userController.getByUsername);
 
 /**
  * @swagger
