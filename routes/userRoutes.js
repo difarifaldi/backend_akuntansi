@@ -144,6 +144,37 @@ router.get("/:id", authenticate, authorizeRole("admin", "owner"), userController
 
 /**
  * @swagger
+ * /users/{username}:
+ *   get:
+ *     summary: Ambil hint password berdasarkan username
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Username user
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mendapatkan hint
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 hint:
+ *                   type: string
+ *       404:
+ *         description: User tidak ditemukan
+ */
+
+router.get("/:username", authenticate, userController.getByUsername);
+
+/**
+ * @swagger
  * /users/{id}:
  *   delete:
  *     summary: Hapus user

@@ -85,6 +85,21 @@ exports.detailUser = async (req, res) => {
   res.json(user);
 };
 
+// Get BY USERNAME
+exports.getByUsername = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.username, {
+      attributes: ["hint"],
+    });
+
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // UPDATE USER
 exports.updateUser = async (req, res) => {
   try {
