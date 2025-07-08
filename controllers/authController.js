@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ["id", "nama", "username", "email", "no_hp", "role"],
+      attributes: ["id", "nama", "username", "email", "no_hp", "role", "hint"],
     });
 
     if (!user) return res.status(404).json({ message: "User tidak ditemukan" });
@@ -72,6 +72,7 @@ exports.updateProfile = async (req, res) => {
     if (req.body.email) updatedData.email = req.body.email;
     if (req.body.username) updatedData.username = req.body.username;
     if (req.body.no_hp) updatedData.no_hp = req.body.no_hp;
+    if (req.body.hint) updatedData.hint = req.body.hint;
 
     // Hanya admin boleh ubah role
     if (req.body.role && req.user.role === "admin") {
