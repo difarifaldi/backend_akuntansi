@@ -88,7 +88,7 @@ exports.detailUser = async (req, res) => {
 // Get BY USERNAME
 exports.getByUsername = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.username, {
+    const user = await User.findOne(req.params.username, {
       attributes: ["hint"],
     });
 
