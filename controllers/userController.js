@@ -88,7 +88,8 @@ exports.detailUser = async (req, res) => {
 // Get BY USERNAME
 exports.getByUsername = async (req, res) => {
   try {
-    const user = await User.findOne(req.params.username, {
+    const user = await User.findOne({
+      where: { username: req.params.username },
       attributes: ["hint"],
     });
 
