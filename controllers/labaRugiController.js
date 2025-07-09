@@ -138,7 +138,7 @@ exports.exportLabaRugiPDF = async (req, res) => {
 
     res.set({
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename=${filename}`,
+      "Content-Disposition": `attachment; filename="${filename}"`,
     });
 
     res.send(pdf);

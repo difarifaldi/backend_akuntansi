@@ -122,9 +122,10 @@ exports.exportNeracaPDF = async (req, res) => {
     await browser.close();
 
     const filename = `Laba-rugi_${dataRekening?.nama_rekening || ""}_${filters.start_tanggal || "awal"}_${filters.end_tanggal || "akhir"}.pdf`;
+
     res.set({
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename=${filename}`,
+      "Content-Disposition": `attachment; filename="${filename}"`,
     });
 
     res.send(pdf);
