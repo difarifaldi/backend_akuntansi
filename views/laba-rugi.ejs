@@ -4,27 +4,57 @@
     <meta charset="utf-8" />
     <style>
       body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 12px;
+        color: #2c3e50;
+        padding: 40px;
+        line-height: 1.6;
+      }
+
+      h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 5px;
+      }
+
+      h3 {
+        margin-top: 30px;
+        font-size: 15px;
+        color: #34495e;
+        border-left: 4px solid #3498db;
+        padding-left: 10px;
+      }
+
+      p {
+        margin: 4px 0;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
-        table-layout: fixed;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: 11px;
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
       }
 
       th,
       td {
-        border: 1px solid #ccc;
-        padding: 6px;
-        font-size: 12px;
-        word-wrap: break-word;
+        border: 1px solid #ddd;
+        padding: 8px 10px;
+        text-align: right;
       }
 
       th {
-        background: #f0f0f0;
+        background-color: #f7f9fc;
+        color: #2c3e50;
+        font-weight: bold;
+      }
+
+      td:first-child,
+      th:first-child {
+        text-align: left;
       }
 
       .col-kategori {
@@ -33,14 +63,42 @@
 
       .col-total {
         width: 30%;
+      }
+
+      .total-row {
+        font-weight: bold;
+        background: #ecf0f1;
+      }
+
+      .laba-bersih {
+        margin-top: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #2d3436;
+        border-top: 2px solid #ccc;
+        padding-top: 10px;
+      }
+
+      .footer {
+        margin-top: 50px;
+        font-size: 10px;
+        color: #888;
         text-align: right;
       }
     </style>
   </head>
   <body>
     <h2>Laporan Laba Rugi</h2>
-    <p>Periode: <%= typeof start_tanggal !== "undefined" ? start_tanggal : "-" %> s/d <%= typeof end_tanggal !== "undefined" ? end_tanggal : "-" %></p>
-    <p>Mata Uang: <%= mata_uang?.toUpperCase() || "-" %></p>
+
+    <p>
+      <strong>Periode:</strong>
+      <%= (() => { function formatTanggal(tglStr) { if (!tglStr) return "-"; const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; const tgl = new Date(tglStr);
+      return `${tgl.getDate()} ${bulan[tgl.getMonth()]} ${tgl.getFullYear()}`; } return `${formatTanggal(start_tanggal)} s/d ${formatTanggal(end_tanggal)}`; })() %>
+    </p>
+    <p><strong>Mata Uang:</strong> <%= mata_uang?.toUpperCase() || "-" %></p>
+    <p><strong>Rekening:</strong> <%= data_rekening?.nama_rekening?.toUpperCase() || "-" %></p>
+
+    <% const simbol = (mata_uang?.toUpperCase() === 'IDR') ? 'Rp. ' : '$'; %>
 
     <h3>Pendapatan (Debit)</h3>
     <table>
@@ -50,13 +108,13 @@
       </tr>
       <% Object.entries(data.debit).forEach(([tipe, total]) => { %>
       <tr>
-        <td class="col-kategori"><%= tipe %></td>
-        <td class="col-total"><%= total.toLocaleString() %></td>
+        <td><%= tipe %></td>
+        <td><%= simbol + total.toLocaleString() + ',00' %></td>
       </tr>
       <% }) %>
-      <tr>
-        <th class="col-kategori">Total Debit</th>
-        <th class="col-total"><%= data.total_debit.toLocaleString() %></th>
+      <tr class="total-row">
+        <td>Total Pendapatan</td>
+        <td><%= simbol + data.total_debit.toLocaleString() + ',00' %></td>
       </tr>
     </table>
 
@@ -68,17 +126,22 @@
       </tr>
       <% Object.entries(data.kredit).forEach(([tipe, total]) => { %>
       <tr>
-        <td class="col-kategori"><%= tipe %></td>
-        <td class="col-total"><%= total.toLocaleString() %></td>
+        <td><%= tipe %></td>
+        <td><%= simbol + total.toLocaleString() + ',00' %></td>
       </tr>
       <% }) %>
-      <tr>
-        <th class="col-kategori">Total Kredit</th>
-        <th class="col-total"><%= data.total_kredit.toLocaleString() %></th>
+      <tr class="total-row">
+        <td>Total Beban</td>
+        <td><%= simbol + data.total_kredit.toLocaleString() + ',00' %></td>
       </tr>
     </table>
 
-    <h3>Laba/Rugi</h3>
-    <p><strong> <%= (data.total_debit - data.total_kredit).toLocaleString() %> </strong></p>
+    <% const labaBersih = data.total_debit - data.total_kredit; %>
+    <div class="laba-bersih">Laba Bersih: <%= simbol + labaBersih.toLocaleString() + ',00' %></div>
+
+    <div class="footer">
+      Dicetak pada: <%= (() => { const now = new Date(); const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; return `${now.getDate()} ${bulan[now.getMonth()]}
+      ${now.getFullYear()}`; })() %>
+    </div>
   </body>
 </html>

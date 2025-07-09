@@ -15,6 +15,7 @@ const rekeningRoutes = require("./routes/rekeningRoutes");
 const transaksiRoutes = require("./routes/transaksiRoutes");
 const authRoutes = require("./routes/authRoutes");
 const labaRugiRoutes = require("./routes/labaRugiRoutes");
+const neracaRoutes = require("./routes/neracaRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -65,6 +66,7 @@ app.use("/rekening", rekeningRoutes);
 app.use("/transaksi", transaksiRoutes);
 app.use("/auth", authRoutes);
 app.use("/laba-rugi", labaRugiRoutes);
+app.use("/neraca", neracaRoutes);
 
 // Sync DB
 sequelize

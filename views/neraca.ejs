@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 12px;
+        color: #333;
+        padding: 40px;
+        line-height: 1.6;
+      }
+
+      h2 {
+        color: #2c3e50;
+        font-size: 20px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+      }
+
+      h3 {
+        color: #34495e;
+        margin-top: 30px;
+        font-size: 16px;
+        border-left: 5px solid #3498db;
+        padding-left: 10px;
+        margin-bottom: 10px;
+      }
+
+      p {
+        margin: 4px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0 30px 0;
+        font-size: 11px;
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.05);
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px 10px;
+        text-align: right;
+      }
+
+      th {
+        background-color: #f7f9fc;
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      td:first-child,
+      th:first-child {
+        text-align: left;
+      }
+
+      .col-keterangan {
+        width: 50%;
+      }
+
+      .col-debit,
+      .col-kredit {
+        width: 25%;
+      }
+
+      .footer {
+        margin-top: 50px;
+        font-size: 10px;
+        color: #888;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <% const simbol = (mata_uang?.toUpperCase() === 'IDR') ? 'Rp. ' : '$'; %>
+
+    <h2>Laporan Neraca</h2>
+
+    <p>
+      <strong>Periode:</strong> <%= (() => { function formatTanggal(tglStr) { if (!tglStr) return "-"; const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; const tgl
+      = new Date(tglStr); return `${tgl.getDate()} ${bulan[tgl.getMonth()]} ${tgl.getFullYear()}`; } return `${formatTanggal(start_tanggal)} s/d ${formatTanggal(end_tanggal)}`; })() %>
+    </p>
+    <p><strong>Mata Uang:</strong> <%= mata_uang?.toUpperCase() || '-' %></p>
+    <p><strong>Rekening:</strong> <%= data_rekening?.nama_rekening?.toUpperCase() || '-' %></p>
+
+    <% Object.entries(data).forEach(([tipe, tipeData]) => { %>
+    <h3><%= tipe %></h3>
+    <table>
+      <thead>
+        <tr>
+          <th class="col-keterangan">Kategori</th>
+          <th class="col-debit">Debit</th>
+          <th class="col-kredit">Kredit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% Object.entries(tipeData.akun).forEach(([namaAkun, akun]) => { %>
+        <tr>
+          <td><%= namaAkun %></td>
+          <td><%= akun.debit > 0 ? simbol + akun.debit.toLocaleString() + ',00' : '0' %></td>
+          <td><%= akun.kredit > 0 ? simbol + akun.kredit.toLocaleString() + ',00' : '0' %></td>
+        </tr>
+        <% }) %>
+        <tr>
+          <th>Total</th>
+          <th><%= tipeData.total_debit > 0 ? simbol + tipeData.total_debit.toLocaleString() + ',00' : '0' %></th>
+          <th><%= tipeData.total_kredit > 0 ? simbol + tipeData.total_kredit.toLocaleString() + ',00' : '0' %></th>
+        </tr>
+      </tbody>
+    </table>
+    <% }) %>
+
+    <div class="footer">
+      Dicetak pada: <%= (() => { const now = new Date(); const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; return `${now.getDate()} ${bulan[now.getMonth()]}
+      ${now.getFullYear()}`; })() %>
+    </div>
+  </body>
+</html>

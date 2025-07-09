@@ -6,9 +6,9 @@ const { Op, fn, col, where } = require("sequelize");
 const puppeteer = require("puppeteer");
 const ejs = require("ejs");
 const path = require("path");
-const { getLabaRugiData } = require("../services/labaRugiServices");
+const { getNeracaData } = require("../services/neracaServices");
 
-exports.laporanLabaRugi = async (req, res) => {
+exports.laporanNeraca = async (req, res) => {
   try {
     const { start_tanggal, end_tanggal, id_rekening, mata_uang } = req.query;
 
@@ -55,42 +55,33 @@ exports.laporanLabaRugi = async (req, res) => {
       order: [["tanggal", "ASC"]],
     });
 
-    const hasil = {
-      debit: {},
-      kredit: {},
-    };
-
+    const hasil = {};
     transaksi.forEach((trx) => {
-      const namaTipe = trx?.TableOfAkun?.TipeAkun?.nama_tipe;
-      if (!namaTipe) return;
+      const tipe = trx?.TableOfAkun?.TipeAkun?.nama_tipe;
+      const akun = trx?.TableOfAkun?.nama_akun;
 
-      if (parseFloat(trx.debit) > 0) {
-        if (!hasil.debit[namaTipe]) hasil.debit[namaTipe] = [];
-        hasil.debit[namaTipe].push(trx);
+      if (!tipe | !akun) return;
+
+      if (!hasil[tipe]) {
+        hasil[tipe] = {
+          akun: {},
+          total_debit: 0,
+          total_kredit: 0,
+        };
       }
 
-      if (parseFloat(trx.kredit) > 0) {
-        if (!hasil.kredit[namaTipe]) hasil.kredit[namaTipe] = [];
-        hasil.kredit[namaTipe].push(trx);
+      if (!hasil[tipe].akun[akun]) {
+        hasil[tipe].akun[akun] = {
+          debit: 0,
+          kredit: 0,
+        };
       }
+      hasil[tipe].akun[akun].debit += parseFloat(trx.debit || 0);
+      hasil[tipe].akun[akun].kredit += parseFloat(trx.kredit || 0);
+
+      hasil[tipe].total_debit += parseFloat(trx.debit || 0);
+      hasil[tipe].total_kredit += parseFloat(trx.kredit || 0);
     });
-
-    const total = {
-      debit: {},
-      kredit: {},
-    };
-
-    for (const tipe in hasil.debit) {
-      total.debit[tipe] = hasil.debit[tipe].reduce((sum, trx) => sum + parseFloat(trx.debit), 0);
-    }
-
-    for (const tipe in hasil.kredit) {
-      total.kredit[tipe] = hasil.kredit[tipe].reduce((sum, trx) => sum + parseFloat(trx.kredit), 0);
-    }
-
-    const totalPendapatan = Object.values(total.debit).reduce((sum, val) => sum + val, 0);
-    const totalBeban = Object.values(total.kredit).reduce((sum, val) => sum + val, 0);
-    const labaRugi = totalPendapatan - totalBeban;
 
     res.json({
       filter: {
@@ -100,23 +91,19 @@ exports.laporanLabaRugi = async (req, res) => {
         mata_uang,
       },
       hasil,
-      total,
-      totalPendapatan,
-      totalBeban,
-      labaRugi,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-exports.exportLabaRugiPDF = async (req, res) => {
+exports.exportNeracaPDF = async (req, res) => {
   try {
     const filters = req.query;
-    const data = await getLabaRugiData(filters);
+    const data = await getNeracaData(filters);
 
     const dataRekening = await Rekening.findByPk(filters.id_rekening);
-    const html = await ejs.renderFile(path.join(__dirname, "../views/laba-rugi.ejs"), {
+    const html = await ejs.renderFile(path.join(__dirname, "../views/neraca.ejs"), {
       start_tanggal: filters.start_tanggal || "-",
       end_tanggal: filters.end_tanggal || "-",
       mata_uang: filters.mata_uang || "-",
@@ -135,7 +122,6 @@ exports.exportLabaRugiPDF = async (req, res) => {
     await browser.close();
 
     const filename = `Laba-rugi_${dataRekening?.nama_rekening || ""}_${filters.start_tanggal || "awal"}_${filters.end_tanggal || "akhir"}.pdf`;
-
     res.set({
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename=${filename}`,
