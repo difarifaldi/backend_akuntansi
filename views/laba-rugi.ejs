@@ -98,7 +98,7 @@
     <p><strong>Mata Uang:</strong> <%= mata_uang?.toUpperCase() || "-" %></p>
     <p><strong>Rekening:</strong> <%= data_rekening?.nama_rekening?.toUpperCase() || "-" %></p>
 
-    <% const simbol = (mata_uang?.toUpperCase() === 'IDR') ? 'Rp. ' : '$'; %>
+    <% const simbol = (mata_uang?.toUpperCase() === 'USD') ? '$' : 'Rp. '; %>
 
     <h3>Pendapatan (Debit)</h3>
     <table>
