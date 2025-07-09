@@ -77,6 +77,6 @@ exports.updatePt = async (req, res) => {
 exports.deletePt = async (req, res) => {
   const pt = await Pt.findByPk(req.params.id);
   if (!pt) return res.status(404).json({ message: "PT tidak ditemukan" });
-  await Pt.destroy();
+  await pt.destroy();
   res.status(200).json({ message: "Berhasil Menghapus PT" });
 };

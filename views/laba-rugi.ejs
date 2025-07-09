@@ -42,25 +42,7 @@
     <p>Periode: <%= typeof start_tanggal !== "undefined" ? start_tanggal : "-" %> s/d <%= typeof end_tanggal !== "undefined" ? end_tanggal : "-" %></p>
     <p>Mata Uang: <%= mata_uang?.toUpperCase() || "-" %></p>
 
-    <h3>Pendapatan (Kredit)</h3>
-    <table>
-      <tr>
-        <th class="col-kategori">Kategori</th>
-        <th class="col-total">Total</th>
-      </tr>
-      <% Object.entries(data.kredit).forEach(([tipe, total]) => { %>
-      <tr>
-        <td class="col-kategori"><%= tipe %></td>
-        <td class="col-total"><%= total.toLocaleString() %></td>
-      </tr>
-      <% }) %>
-      <tr>
-        <th class="col-kategori">Total Kredit</th>
-        <th class="col-total"><%= data.total_kredit.toLocaleString() %></th>
-      </tr>
-    </table>
-
-    <h3>Beban (Debit)</h3>
+    <h3>Pendapatan (Debit)</h3>
     <table>
       <tr>
         <th class="col-kategori">Kategori</th>
@@ -78,7 +60,25 @@
       </tr>
     </table>
 
+    <h3>Beban (Kredit)</h3>
+    <table>
+      <tr>
+        <th class="col-kategori">Kategori</th>
+        <th class="col-total">Total</th>
+      </tr>
+      <% Object.entries(data.kredit).forEach(([tipe, total]) => { %>
+      <tr>
+        <td class="col-kategori"><%= tipe %></td>
+        <td class="col-total"><%= total.toLocaleString() %></td>
+      </tr>
+      <% }) %>
+      <tr>
+        <th class="col-kategori">Total Kredit</th>
+        <th class="col-total"><%= data.total_kredit.toLocaleString() %></th>
+      </tr>
+    </table>
+
     <h3>Laba/Rugi</h3>
-    <p><strong> <%= (data.total_kredit - data.total_debit).toLocaleString() %> </strong></p>
+    <p><strong> <%= (data.total_debit - data.total_kredit).toLocaleString() %> </strong></p>
   </body>
 </html>

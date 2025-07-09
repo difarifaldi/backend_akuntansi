@@ -88,8 +88,8 @@ exports.laporanLabaRugi = async (req, res) => {
       total.kredit[tipe] = hasil.kredit[tipe].reduce((sum, trx) => sum + parseFloat(trx.kredit), 0);
     }
 
-    const totalPendapatan = Object.values(total.kredit).reduce((sum, val) => sum + val, 0);
-    const totalBeban = Object.values(total.debit).reduce((sum, val) => sum + val, 0);
+    const totalPendapatan = Object.values(total.debit).reduce((sum, val) => sum + val, 0);
+    const totalBeban = Object.values(total.kredit).reduce((sum, val) => sum + val, 0);
     const labaRugi = totalPendapatan - totalBeban;
 
     res.json({
