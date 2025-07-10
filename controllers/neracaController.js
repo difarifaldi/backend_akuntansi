@@ -121,7 +121,7 @@ exports.exportNeracaPDF = async (req, res) => {
     const pdf = await page.pdf({ format: "A4", printBackground: true });
     await browser.close();
 
-    const filename = `Laba-rugi_${dataRekening?.nama_rekening || ""}_${filters.start_tanggal || "awal"}_${filters.end_tanggal || "akhir"}.pdf`;
+    const filename = `Neraca_${dataRekening?.nama_rekening || ""}_${filters.start_tanggal || "awal"}_${filters.end_tanggal || "akhir"}.pdf`;
 
     res.set({
       "Content-Type": "application/pdf",
