@@ -281,57 +281,123 @@ exports.exportPDF = async (req, res) => {
       ],
     });
 
+    function formatDate(dateStr) {
+      if (!dateStr) return "-";
+      const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const d = new Date(dateStr);
+      return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function formatRupiah(angka) {
+      return "Rp. " + parseFloat(angka).toLocaleString("id-ID") + ",00";
+    }
+
     // Generate HTML untuk PDF
     const html = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ccc; padding: 6px; font-size: 12px; }
-            th { background: #f0f0f0; }
-          </style>
-        </head>
-        <body>
-          <h2>Laporan Transaksi</h2>
-          ${start_tanggal || end_tanggal ? `<p>Periode: ${start_tanggal || "-"} s/d ${end_tanggal || "-"}</p>` : ""}
-          ${id_rekening ? `<p>Rekening: ${transaksi[0]?.Rekening?.nama_rekening || "Tidak ditemukan"}</p>` : ""}
-          <table>
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Rekening</th>
-                <th>Akun</th>
-                <th>Keterangan</th>
-                <th>Debit</th>
-                <th>Kredit</th>
-                <th>Saldo</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${
-                transaksi.length > 0
-                  ? transaksi
-                      .map((trx) => {
-                        return `
-                          <tr>
-                            <td>${trx.tanggal}</td>
-                            <td>${trx.Rekening?.nama_rekening || "-"}</td>
-                            <td>${trx.TableOfAkun?.nama_akun || "-"}</td>
-                            <td>${trx.keterangan}</td>
-                            <td>${trx.debit}</td>
-                            <td>${trx.kredit}</td>
-                            <td>${trx.saldo}</td>
-                          </tr>
-                        `;
-                      })
-                      .join("")
-                  : `<tr><td colspan="7">Tidak ada data</td></tr>`
-              }
-            </tbody>
-          </table>
-        </body>
-      </html>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12px;
+            color: #2c3e50;
+            padding: 40px;
+            line-height: 1.6;
+          }
+
+          h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+          }
+
+          p {
+            margin: 4px 0;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            font-size: 11px;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.05);
+          }
+
+          th,
+          td {
+            border: 1px solid #ddd;
+            padding: 8px 10px;
+            text-align: right;
+          }
+
+          th {
+            background-color: #f7f9fc;
+            color: #2c3e50;
+            font-weight: bold;
+          }
+
+          td:first-child,
+          th:first-child {
+            text-align: left;
+          }
+
+          .footer {
+            margin-top: 40px;
+            font-size: 10px;
+            color: #888;
+            text-align: right;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Laporan Transaksi</h2>
+        ${start_tanggal || end_tanggal ? `<p><strong>Periode:</strong> ${formatDate(start_tanggal)} s/d ${formatDate(end_tanggal)}</p>` : ""}
+        ${id_rekening ? `<p><strong>Rekening:</strong> ${transaksi[0]?.Rekening?.nama_rekening?.toUpperCase() || "-"}</p>` : ""}
+
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Rekening</th>
+              <th>Akun</th>
+              <th>Keterangan</th>
+              <th>Debit</th>
+              <th>Kredit</th>
+              <th>Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              transaksi.length > 0
+                ? transaksi
+                    .map((trx) => {
+                      return `
+                        <tr>
+                          <td>${formatDate(trx.tanggal)}</td>
+                          <td>${trx.Rekening?.nama_rekening || "-"}</td>
+                          <td>${trx.TableOfAkun?.nama_akun || "-"}</td>
+                          <td style="text-align:left;">${trx.keterangan || "-"}</td>
+                          <td>${trx.debit ? formatRupiah(trx.debit) : "-"}</td>
+                          <td>${trx.kredit ? formatRupiah(trx.kredit) : "-"}</td>
+                          <td>${trx.saldo ? formatRupiah(trx.saldo) : "-"}</td>
+                        </tr>
+                      `;
+                    })
+                    .join("")
+                : `<tr><td colspan="7" style="text-align:center;">Tidak ada data</td></tr>`
+            }
+          </tbody>
+        </table>
+
+        <div class="footer">
+          Dicetak pada: ${formatDate(new Date())}
+        </div>
+      </body>
+    </html>
     `;
 
     // Generate PDF dari HTML
