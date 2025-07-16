@@ -7,7 +7,16 @@ exports.createTransaksiValidator = [
   body("debit").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Debit harus angka desimal"),
   body("kredit").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Kredit harus angka desimal"),
   body("saldo").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Saldo harus angka desimal"),
-  body("id_rekening").notEmpty().isInt().withMessage("ID rekening harus angka"),
+  body("id_rekening").custom((value) => {
+    if (value === undefined || value === null || value === "") {
+      throw new Error("ID rekening wajib diisi");
+    }
+    if (isNaN(parseInt(value))) {
+      throw new Error("ID rekening harus angka");
+    }
+    return true;
+  }),
+
   body("created_by").notEmpty().withMessage("Created by wajib diisi").isInt().withMessage("Created by harus angka"),
 ];
 
@@ -18,6 +27,15 @@ exports.updateTransaksiValidator = [
   body("debit").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Debit harus angka desimal"),
   body("kredit").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Kredit harus angka desimal"),
   body("saldo").optional().isDecimal({ decimal_digits: "0,2" }).withMessage("Saldo harus angka desimal"),
-  body("id_rekening").notEmpty().isInt().withMessage("ID rekening harus angka"),
+  body("id_rekening").custom((value) => {
+    if (value === undefined || value === null || value === "") {
+      throw new Error("ID rekening wajib diisi");
+    }
+    if (isNaN(parseInt(value))) {
+      throw new Error("ID rekening harus angka");
+    }
+    return true;
+  }),
+
   body("created_by").optional().isInt().withMessage("Created by harus angka"),
 ];
